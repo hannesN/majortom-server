@@ -1,0 +1,79 @@
+== MajorToM HTTP API ==
+
+The MaJorToM Server provides an URL-based API. 
+
+The result is a JSON-object which has the following form:
+
+~~~~~~~~~~~~~~~~~~~~
+{code : "0", msg : "OK", data : [] }
+~~~~~~~~~~~~~~~~~~~~
+
+*code* the code indicates the success of the query. 1 means something went wrong, 0 indicates the query was a success.
+*msg* contains a message, which explains an error.
+*data* contains the result values, e.g. the JTMQR object of a TMQL query
+
+
+The API uses an id of the topic map. The id is the MD5 checksum of the base locator.
+
+The following variables will be used to shorten the URL:
+
+* *SERVER* the url for the server e.g. http://majortom.topicmapslab.de
+* *TMID* for the topic map id
+
+
+=== Get the ID of a Topic Map ===
+
+Instead of calculating the id you can ask the server for it. Use the url:
+~~~~~~~~~~~~~~~~~~~~~~~~
+SERVER/tm/resolvetm
+~~~~~~~~~~~~~~~~~~~~~~~~
+This url needs the following parameter:
+
+
+[options="header"]
+|=================================
+|Name|Type|Description
+|bl|String|Baselocator to resolve
+|=================================
+
+
+=== Execute TMQL Queries ===
+
+Executing tmql queries is easy. Just use the following URL:
+~~~~~~~~~~~~~~~~~~~~
+SERVER/tm/tmql/TMID
+~~~~~~~~~~~~~~~~~~~~
+
+This url needs the following parameter (Post and GET are supported):
+
+
+[options="header"]
+|=================================
+|Name|Type|Description
+|query|String|tmql query
+|=================================
+
+The JTMQR-Result is stored inside the data field of the result query.
+
+WARNING: The results will be creates using IResultSet.toJTMQR. Do not use "USE JTMQR" inside the query!!
+
+NOTE: Update Queries are also supported.
+
+=== Get a Serialization of a Topic Map ===
+
+To serilaize a topic map just use the URL:
+
+~~~~~~~~~~~~~~~~~~~~
+SERVER/tm/xtm/TMID
+~~~~~~~~~~~~~~~~~~~~
+or
+~~~~~~~~~~~~~~~~~~~~
+SERVER/tm/ctm/TMID
+~~~~~~~~~~~~~~~~~~~~
+
+The serialization will be the result in the stream.
+
+TODO: SPARQL
+
+
+

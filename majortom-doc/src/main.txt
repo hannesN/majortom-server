@@ -1,0 +1,6 @@
+= MajorTom-Server =
+
+include::install.txt[]
+
+include::http.txt[]
+
