@@ -1,0 +1,15 @@
+syntax: glob
+bin
+target
+*.class
+*.log
+*.zip
+build.properties
+engine.properties
+doc/javadoc
+**/doc/doc
+*/\${builder}
+doc/build.properties
+*.xml.versionsBackup
+majortom-doc/doc
+majortom-server/src/main/resources/jedis.properties

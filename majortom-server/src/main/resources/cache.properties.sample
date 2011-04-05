@@ -1,0 +1,2 @@
+# This is the class of cache
+class = de.topicmapslab.majortom.server.cache.RedisCache
