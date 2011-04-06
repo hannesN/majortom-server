@@ -20,6 +20,8 @@ The following variables will be used to shorten the URL:
 * *SERVER* the url for the server e.g. http://majortom.topicmapslab.de
 * *TMID* for the topic map id
 
+Every api call needs a parameter *apikey* which is given for every user! 
+
 
 === Get the ID of a Topic Map ===
 
@@ -34,6 +36,7 @@ This url needs the following parameter:
 |=================================
 |Name|Type|Description
 |bl|String|Baselocator to resolve
+|apikey|the apikey for the user
 |=================================
 
 
@@ -51,6 +54,7 @@ This url needs the following parameter (Post and GET are supported):
 |=================================
 |Name|Type|Description
 |query|String|tmql query
+|apikey|the apikey for the user
 |=================================
 
 The JTMQR-Result is stored inside the data field of the result query.
@@ -71,6 +75,14 @@ or
 SERVER/tm/ctm/TMID
 ~~~~~~~~~~~~~~~~~~~~
 
+The parameter:
+
+[options="header"]
+|=================================
+|apikey|the apikey for the user
+|=================================
+
+
 The serialization will be the result in the stream.
 
 == Clear Cache for a Topic Map ===
@@ -80,6 +92,13 @@ To clear the cache of a topic map use the following query:
 ~~~~~~~~~~~~~~~~~~~~
 SERVER/tm/clearcache/TMID
 ~~~~~~~~~~~~~~~~~~~~
+
+The parameter:
+
+[options="header"]
+|=================================
+|apikey|the apikey for the user
+|=================================
 
 TODO: SPARQL
 
