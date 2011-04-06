@@ -251,11 +251,6 @@
 		</dependency>
 		<dependency>
 			<groupId>de.topicmapslab</groupId>
-			<artifactId>search</artifactId>
-			<version>0.5.2-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>de.topicmapslab</groupId>
 			<artifactId>sesame-sail-tmapi</artifactId>
 			<version>0.1.2-SNAPSHOT</version>
 		</dependency>
@@ -263,6 +258,33 @@
 			<groupId>de.topicmapslab.tamana</groupId>
 			<artifactId>tmqlextensions</artifactId>
 			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate</artifactId>
+			<version>3.2.7.ga</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>de.topicmapslab</groupId>
+			<artifactId>beru</artifactId>
+			<version>0.5.2-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-annotations</artifactId>
+			<version>3.4.0.GA</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${spring.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 

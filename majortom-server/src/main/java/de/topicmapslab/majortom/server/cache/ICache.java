@@ -31,6 +31,15 @@ public interface ICache {
 	 *             thrown if operation fails
 	 */
 	public void clear() throws CacheException;
+	
+	/**
+	 * clears the cache
+	 * 
+	 * @param topicMapId clears the cache of the given topic map id
+	 * @throws CacheException
+	 *             thrown if operation fails
+	 */
+	public void clear(String topicMapId) throws CacheException;
 
 	/**
 	 * Returns the value for the given key

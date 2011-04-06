@@ -17,6 +17,7 @@ package de.topicmapslab.majortom.server.cache;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -46,6 +47,29 @@ public class MemoryCache implements ICache {
 			lock.unlock();
 		}
 
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void clear(String id) throws CacheException {
+		while (!lock.tryLock()) {
+			// VOID
+		}
+		String keyStart = "tmql:" + id + ":";
+
+		try {
+			Iterator<String> it = cache.keySet().iterator();
+			while (it.hasNext()) {
+				if (it.next().startsWith(keyStart)) {
+					it.remove();
+				}
+			}
+			cache.clear();
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	/**

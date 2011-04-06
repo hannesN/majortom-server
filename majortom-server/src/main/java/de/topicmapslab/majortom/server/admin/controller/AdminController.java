@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-/**
- * 
- */
 package de.topicmapslab.majortom.server.admin.controller;
 
 import java.util.HashMap;
@@ -27,6 +24,7 @@ import javax.servlet.ServletException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -41,6 +39,7 @@ import de.topicmapslab.majortom.server.admin.model.DatabaseConnectionData;
 import de.topicmapslab.majortom.server.admin.model.NewTopicMapData;
 import de.topicmapslab.majortom.server.admin.util.IOUtil;
 import de.topicmapslab.majortom.server.cache.CacheHandler;
+import de.topicmapslab.majortom.server.security.IMTSUserDetailDAO;
 import de.topicmapslab.majortom.server.topicmaps.TopicMapsHandler;
 
 /**
@@ -54,6 +53,8 @@ import de.topicmapslab.majortom.server.topicmaps.TopicMapsHandler;
 public class AdminController {
 	private static Logger logger = LoggerFactory.getLogger(AdminController.class);
 
+	@Autowired
+	private IMTSUserDetailDAO userDetailDAO;
 	private TopicMapsHandler tmh;
 
 	// private Properties jedisProperties = new Properties();
@@ -183,6 +184,16 @@ public class AdminController {
 
 		return new ModelAndView("showtopicmaps", "entries", resultMap);
 	}
+	
+	/**
+	 * Renders a list of users
+	 * 
+	 * @return the {@link ModelAndView} with the view param
+	 */
+	@RequestMapping("showusers")
+	public ModelAndView showUsers() {
+		return new ModelAndView("showusers", "entries", userDetailDAO.getUsers());
+	}
 
 	/**
 	 * Removes the topic map with the given id
@@ -243,9 +254,6 @@ public class AdminController {
 				 */
 				CacheHandler.getCache().clear();
 			}
-			// Jedis jedis = getJedis();
-			// jedis.flushDB();
-			// jedis.disconnect();
 		} catch (Exception e) {
 			return new ModelAndView("info", "msg", "Error clearing cache: " + e.getMessage());
 		}

@@ -12,4 +12,4 @@ doc/javadoc
 doc/build.properties
 *.xml.versionsBackup
 majortom-doc/doc
-majortom-server/src/main/resources/jedis.properties
+majortom-server/src/main/resources/server.properties

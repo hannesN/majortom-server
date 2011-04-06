@@ -1,8 +1,0 @@
-# This is the home of your Reddis store
-hostname = www.example.org
-
-# The password for authentication
-password = sEcR3t
-
-# Id of the database that shall be used
-storeId = 0 

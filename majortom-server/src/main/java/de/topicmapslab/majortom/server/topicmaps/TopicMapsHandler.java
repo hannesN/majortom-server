@@ -21,7 +21,6 @@ package de.topicmapslab.majortom.server.topicmaps;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -42,6 +41,10 @@ import org.tmapix.io.CTMTopicMapReader;
 import org.tmapix.io.TopicMapReader;
 import org.tmapix.io.XTMTopicMapReader;
 
+import de.topicmapslab.beru.core.TopicMapIndexer;
+import de.topicmapslab.beru.util.ConstructIdentifier;
+import de.topicmapslab.beru.util.IdentifierType;
+import de.topicmapslab.beru.util.TopicMapIndexDirectory;
 import de.topicmapslab.format_estimator.FormatEstimator.Format;
 import de.topicmapslab.majortom.core.TopicMapSystemFactoryImpl;
 import de.topicmapslab.majortom.database.store.JdbcTopicMapStoreProperty;
@@ -52,10 +55,6 @@ import de.topicmapslab.majortom.server.admin.util.IOUtil;
 import de.topicmapslab.majortom.server.http.util.MD5Util;
 import de.topicmapslab.majortom.store.TopicMapStoreProperty;
 import de.topicmapslab.majortom.util.FeatureStrings;
-import de.topicmapslab.search.core.TopicMapIndexer;
-import de.topicmapslab.search.util.ConstructIdentifier;
-import de.topicmapslab.search.util.IdentifierType;
-import de.topicmapslab.search.util.TopicMapIndexDirectory;
 
 /**
  * Implementation of the {@link ITopicMapsHandler} interface using MaJorToM.
@@ -151,16 +150,12 @@ public class TopicMapsHandler {
 
 			// create id with md5 of baselocator
 			String id = null;
-			try {
-				id = MD5Util.calculateMD5(baseLocator);
+			id = MD5Util.calculateMD5(baseLocator);
 
-				// put the id to the map
-				topicMapMap.put(id, tm);
+			// put the id to the map
+			topicMapMap.put(id, tm);
 
-				return id;
-			} catch (NoSuchAlgorithmException e) {
-				throw new ServletException(e);
-			}
+			return id;
 		}
 		return (String) topicMapMap.getKey(tm);
 	}

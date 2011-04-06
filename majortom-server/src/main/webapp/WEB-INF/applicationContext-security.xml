@@ -1,25 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <b:beans xmlns:b="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:mvc="http://www.springframework.org/schema/mvc"
-	xmlns="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns="http://www.springframework.org/schema/security"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 						http://www.springframework.org/schema/beans/spring-beans.xsd
 						http://www.springframework.org/schema/security
-						http://www.springframework.org/schema/security/spring-security.xsd">
-<!--
+						http://www.springframework.org/schema/security/spring-security.xsd
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<b:bean id="placeholderConfig"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<b:property name="location" value="classpath:server.properties" />
+	</b:bean>
+
+	<b:bean id="configDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<b:property name="driverClassName" value="${db.driver}" />
+		<b:property name="url" value="${db.jdbcurl}" />
+		<b:property name="username" value="${db.username}" />
+		<b:property name="password" value="${db.password}" />
+	</b:bean>
+
+	<b:bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+
+	<b:bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<b:property name="dataSource" ref="configDataSource" />
+		<b:property name="packagesToScan" value="de.topicmapslab.majortom.server.security" />
+		<b:property name="hibernateProperties">
+			<b:props>
+				<b:prop key="dialect">{hibernate.dialect}</b:prop>
+			 	<b:prop key="hibernate.hbm2ddl.auto">update</b:prop>
+			</b:props>
+		</b:property>
+	</b:bean>
+
+	<b:bean id="transactionManager" 
+          class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <b:property name="sessionFactory" ref="sessionFactory"/>
+    </b:bean>
+
+	<b:bean id="mtsUserDetailDAO"
+		class="de.topicmapslab.majortom.server.security.MTSUserDetailDAO">
+		<b:constructor-arg ref="sessionFactory" />
+	</b:bean>
+
+	<b:bean id="mtsUserService"
+		class="de.topicmapslab.majortom.server.security.MTSUserDetailsService">
+		<b:constructor-arg ref="mtsUserDetailDAO" />
+	</b:bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
 	<http>
-		<http-basic/>
-		<intercept-url pattern="/admin/**"  access="ROLE_ADMIN"/>
+		<http-basic />
+		<intercept-url pattern="/admin/**" access="ROLE_ADMIN" />
 	</http>
 
 	<authentication-manager>
-		<authentication-provider>
-			<user-service>
-				<user name="admin" authorities="ROLE_ADMIN" password="secret"/>
-			</user-service>
+		<authentication-provider user-service-ref="mtsUserService">
+			<password-encoder hash="md5" />
 		</authentication-provider>
 	</authentication-manager>
--->
 </b:beans>

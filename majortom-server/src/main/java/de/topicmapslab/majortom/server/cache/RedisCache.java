@@ -65,6 +65,26 @@ public class RedisCache implements ICache {
 			throw new CacheException(IOERROR, e);
 		}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void clear(String id) throws CacheException {
+		try {
+			String keyStart = "tmql:" + id + ":*";
+			
+			
+			Jedis jedis = openConnection();
+			Set<String> keys = jedis.keys(keyStart);
+			if (!keys.isEmpty()) {
+				jedis.del(keys.toArray(new String[keys.size()]));
+			}
+			jedis.disconnect();
+		} catch (IOException e) {
+			throw new CacheException(IOERROR, e);
+		}
+	}
 
 	/**
 	 * {@inheritDoc}

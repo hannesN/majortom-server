@@ -73,6 +73,14 @@ SERVER/tm/ctm/TMID
 
 The serialization will be the result in the stream.
 
+== Clear Cache for a Topic Map ===
+
+To clear the cache of a topic map use the following query:
+
+~~~~~~~~~~~~~~~~~~~~
+SERVER/tm/clearcache/TMID
+~~~~~~~~~~~~~~~~~~~~
+
 TODO: SPARQL
 
 

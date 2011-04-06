@@ -21,6 +21,13 @@ import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Instantiates a cache class based on the value in the properties file
+ * 
+ * 
+ * @author Sven Krosse
+ *
+ */
 public class CacheHandler {
 
 	final static Lock lock = new ReentrantLock(true);
@@ -83,7 +90,7 @@ public class CacheHandler {
 	private static void newCache() {
 		InputStream stream;
 		try {
-			URL url = CacheHandler.class.getResource("/cache.properties");
+			URL url = CacheHandler.class.getResource("/server.properties");
 			if (url == null) {
 				enabled = false;
 				return;

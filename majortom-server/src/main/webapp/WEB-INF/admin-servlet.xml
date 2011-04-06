@@ -17,7 +17,7 @@
 
 	<bean id="multipartResolver"
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
-
+		
 	<mvc:interceptors>
 		<bean id="layoutInterceptor"
 			class="de.topicmapslab.majortom.server.admin.interceptor.LayoutInterceptor">

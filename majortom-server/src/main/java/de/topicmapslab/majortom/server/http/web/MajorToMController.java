@@ -17,8 +17,6 @@ package de.topicmapslab.majortom.server.http.web;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,6 +41,12 @@ import org.tmapi.core.TopicMapSystem;
 import org.tmapix.io.XTM2TopicMapWriter;
 import org.tmapix.io.XTMVersion;
 
+import de.topicmapslab.beru.core.TopicMapSearcher;
+import de.topicmapslab.beru.result.Facet;
+import de.topicmapslab.beru.result.FacetedResult;
+import de.topicmapslab.beru.util.ConstructIdentifier;
+import de.topicmapslab.beru.util.IdentifierType;
+import de.topicmapslab.beru.util.TopicMapIndexDirectory;
 import de.topicmapslab.ctm.writer.core.CTMTopicMapWriter;
 import de.topicmapslab.majortom.model.core.ITopicMap;
 import de.topicmapslab.majortom.server.cache.CacheHandler;
@@ -51,15 +55,8 @@ import de.topicmapslab.majortom.server.http.util.MD5Util;
 import de.topicmapslab.majortom.server.http.util.QueryParser;
 import de.topicmapslab.majortom.server.topicmaps.TopicMapsHandler;
 import de.topicmapslab.majortom.server.topicmaps.UnknownTopicMapException;
-import de.topicmapslab.search.core.TopicMapSearcher;
-import de.topicmapslab.search.result.Facet;
-import de.topicmapslab.search.result.FacetedResult;
-import de.topicmapslab.search.util.ConstructIdentifier;
-import de.topicmapslab.search.util.IdentifierType;
-import de.topicmapslab.search.util.TopicMapIndexDirectory;
 import de.topicmapslab.sesame.simpleinterface.SPARQLResultFormat;
 import de.topicmapslab.sesame.simpleinterface.TMConnector;
-import de.topicmapslab.tmql4j.components.processor.runtime.ITMQLRuntime;
 import de.topicmapslab.tmql4j.components.processor.runtime.TMQLRuntimeFactory;
 import de.topicmapslab.tmql4j.path.components.processor.runtime.TmqlRuntime2007;
 import de.topicmapslab.tmql4j.query.IQuery;
@@ -71,13 +68,9 @@ import de.topicmapslab.tmql4j.query.IQuery;
  * 
  */
 @Controller
-public class MajorToMController {
+public class MajorToMController extends AbstractMajorToMController {
 
 	private Logger logger = LoggerFactory.getLogger(MajorToMController.class.getName());
-
-	private ITMQLRuntime runtime;
-
-	private TopicMapsHandler tmh;
 
 	/**
 	 * Constructor
@@ -85,8 +78,6 @@ public class MajorToMController {
 	public MajorToMController() {
 		tmh = TopicMapsHandler.getInstance();
 		runtime = TMQLRuntimeFactory.newFactory().newRuntime(TmqlRuntime2007.TMQL_2007);
-
-		logger.info("Flushing Cache");
 	}
 
 	/**
@@ -96,7 +87,11 @@ public class MajorToMController {
 	 * @return
 	 */
 	@RequestMapping("/topics/{id}")
-	public JSONView getTopics(@PathVariable String id) {
+	public JSONView getTopics(@PathVariable String id, String apikey) {
+		
+		if (!isValidKey(apikey))
+			return invalidApiKeyResult();
+		
 		try {
 			String redisKey = "topics:" + id;
 			String resString = null;
@@ -122,47 +117,15 @@ public class MajorToMController {
 		}
 	}
 
-	/**
-	 * Returns all topics from the topic map
-	 * 
-	 * @param id
-	 * @return
-	 */
-	@RequestMapping("/associations/{id}")
-	public JSONView getNumberOfAssociations(@PathVariable String id) {
-		try {
-			String redisKey = "assoccount:" + id;
-
-			String resString = null;
-			if (CacheHandler.isCachingEnabled()) {
-				resString = CacheHandler.getCache().get(redisKey);
-			}
-
-			if (resString == null) {
-				TopicMap tm = tmh.getTopicMap(id);
-
-				String queryString = "fn:count(// tm:subject << players)";
-
-				IQuery query = runtime.run(tm, queryString);
-
-				resString = (String) query.getResults().get(0, 0);
-				if (CacheHandler.isCachingEnabled()) {
-					CacheHandler.getCache().set(redisKey, resString);
-				}
-			}
-			// jedis.disconnect();
-			return new JSONView(getResultJSON(0, "OK", resString));
-		} catch (Exception e) {
-			return new JSONView(getResultJSON(1, e.getMessage()));
-		}
-	}
 
 	/**
 	 * Returns the id of the topic map
 	 */
 	@RequestMapping("resolvetm")
-	public JSONView getTopicMapId(String bl) {
-
+	public JSONView getTopicMapId(String bl, String apikey) {
+		if (!isValidKey(apikey))
+			return invalidApiKeyResult();
+		
 		try {
 			String id = tmh.getTopicMapId(bl);
 
@@ -177,8 +140,12 @@ public class MajorToMController {
 	 * Writes the given topic map to xtm
 	 */
 	@RequestMapping(value = "/xtm/{id}", method = { RequestMethod.GET, RequestMethod.POST })
-	public void toXTM(@PathVariable String id, String query, String serverid, String callback, HttpServletRequest req,
+	public void toXTM(@PathVariable String id, String query, String serverid, String callback, String apikey, HttpServletRequest req,
 			HttpServletResponse resp) throws Exception {
+		if (!isValidKey(apikey)) {
+			invalidApiKeyResult().render(null, req, resp);
+			return;
+		}
 
 		TopicMap topicMap = tmh.getTopicMap(id);
 		
@@ -191,9 +158,14 @@ public class MajorToMController {
 	 * Writes the given topic map to ctm
 	 */
 	@RequestMapping(value = "/ctm/{id}", method = { RequestMethod.GET, RequestMethod.POST })
-	public void toCTM(@PathVariable String id, String query, String serverid, String callback, HttpServletRequest req,
+	public void toCTM(@PathVariable String id, String query, String serverid, String callback, String apikey, HttpServletRequest req,
 			HttpServletResponse resp) throws Exception {
 
+		if (!isValidKey(apikey)) {
+			invalidApiKeyResult().render(null, req, resp);
+			return;
+		}
+		
 		TopicMap topicMap = tmh.getTopicMap(id);
 		
 		
@@ -208,8 +180,12 @@ public class MajorToMController {
 	 * Retrieves a TMQL query, appends USE JTMQR and executes the query.
 	 */
 	@RequestMapping(value = "/tmql/{id}", method = { RequestMethod.GET, RequestMethod.POST })
-	public JSONView result(@PathVariable String id, String query, String serverid, String callback, HttpServletRequest req,
+	public JSONView getTMQL(@PathVariable String id, String query, String serverid, String callback, String apikey, HttpServletRequest req,
 			HttpServletResponse resp) throws Exception {
+		
+		if (!isValidKey(apikey))
+			return invalidApiKeyResult();
+		
 		try {
 			String queryString = extractBodyContent(req);
 
@@ -274,7 +250,11 @@ public class MajorToMController {
 	 * @throws ServletException
 	 */
 	@RequestMapping(value = "topicmaps", method = { RequestMethod.GET, RequestMethod.POST })
-	public JSONView getTopicMaps(String callback, HttpServletRequest req) throws ServletException {
+	public JSONView getTopicMaps(String callback, String apikey, HttpServletRequest req) throws ServletException {
+		
+		if (!isValidKey(apikey))
+			return invalidApiKeyResult();
+		
 		try {
 			StringBuilder jsonResult = new StringBuilder();
 
@@ -338,8 +318,12 @@ public class MajorToMController {
 	 * @throws ServletException
 	 */
 	@RequestMapping(value = "/sparql/{id}", method = { RequestMethod.GET, RequestMethod.POST, RequestMethod.HEAD })
-	public Object getSparql(@PathVariable String id, String query, HttpServletRequest req, HttpServletResponse resp)
+	public Object getSparql(@PathVariable String id, String query, String apikey, HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException {
+		
+		if (!isValidKey(apikey))
+			return invalidApiKeyResult();
+		
 		try {
 			TopicMap tm = tmh.getTopicMap(id);
 			TopicMapSystem tms = ((ITopicMap) tm).getTopicMapSystem();
@@ -383,8 +367,10 @@ public class MajorToMController {
 	 * @throws ServletException
 	 */
 	@RequestMapping(value = "/beru/{id}", method = { RequestMethod.GET, RequestMethod.POST })
-	public JSONView getLucene(@PathVariable String id, String query, HttpServletResponse resp) throws ServletException {
+	public JSONView getLucene(@PathVariable String id, String query, String apikey, HttpServletResponse resp) throws ServletException {
 		try {
+			if (!isValidKey(apikey))
+				return invalidApiKeyResult();
 			TopicMap tm = tmh.getTopicMap(id);
 
 			TopicMapSearcher s = new TopicMapSearcher(new TopicMapIndexDirectory(new ConstructIdentifier(IdentifierType.TOPIC_MAP_LOCATOR,
@@ -439,121 +425,31 @@ public class MajorToMController {
 			throw new ServletException(e);
 		}
 	}
-
-	private String extractBodyContent(HttpServletRequest req) throws IOException, UnsupportedEncodingException {
-		InputStream is = req.getInputStream();
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-		int c = 0;
-
-		// read query
-		while ((c = is.read()) != -1) {
-			bos.write(c);
+	
+	/**
+	 * Clears the  cache and returns an info message
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/clearcache/{id}", method = { RequestMethod.GET, RequestMethod.POST })
+	public JSONView clearCache(@PathVariable String id, String query, String apikey, HttpServletResponse resp) throws ServletException {
+		if (!isValidKey(apikey))
+			return invalidApiKeyResult();
+		try {
+			/*
+			 * checks if caching is enabled
+			 */
+			if (CacheHandler.isCachingEnabled()) {
+				/*
+				 * clear cache
+				 */
+				CacheHandler.getCache().clear(id);
+			}
+		} catch (Exception e) {
+			return new JSONView(getResultJSON(1, "Error clearing cache: " + e.getMessage()));
 		}
-		// save query
-		String res = new String(bos.toByteArray(), "UTF-8");
 
-		// clean up
-		is.close();
-		bos.close();
-		return res;
+		return new JSONView(getResultJSON(0, "OK"));
 	}
 
-	private String getResultJSON(int code, String msg) {
-		return getResultJSON(code, msg, null, null);
-	}
-
-	private String getResultJSON(int code, String msg, String data) {
-		return getResultJSON(code, msg, data, null);
-	}
-
-	private String getResultJSON(int code, String msg, String data, Meta meta) {
-		StringBuilder b = new StringBuilder();
-
-		b.append("{");
-
-		b.append("\"code\" : ");
-		b.append("\"");
-		b.append(code);
-		b.append("\"");
-
-		b.append(", \"msg\" : ");
-		b.append("\"");
-		b.append(msg);
-		b.append("\"");
-
-		if (data != null) {
-			b.append(", \"data\" : ");
-			b.append(data);
-		}
-
-		if (meta != null) {
-			b.append(", \"meta\" : {");
-			b.append("\"duration\" : \"");
-			b.append(Long.toString(meta.getDuration()));
-			b.append("\", \"cached\" : \"");
-			b.append(Boolean.toString(meta.isCached()));
-			b.append("\", \"query\" : \"");
-			b.append(StringEscapeUtils.escapeJavaScript(meta.getQuery()));
-			b.append("\"}");
-		}
-
-		b.append("}");
-
-		return b.toString();
-	}
-
-	private class Meta {
-		long duration;
-		boolean cached;
-		private String query;
-
-		/**
-		 * Constructor
-		 * 
-		 * @param duration
-		 * @param cached
-		 */
-		public Meta(String query) {
-			super();
-			this.query = query;
-		}
-
-		/**
-		 * @return the duration
-		 */
-		public long getDuration() {
-			return duration;
-		}
-
-		/**
-		 * @return the cached
-		 */
-		public boolean isCached() {
-			return cached;
-		}
-
-		/**
-		 * @return the query
-		 */
-		public String getQuery() {
-			return query;
-		}
-
-		/**
-		 * @param cached
-		 *            the cached to set
-		 */
-		public void setCached(boolean cached) {
-			this.cached = cached;
-		}
-
-		/**
-		 * @param duration
-		 *            the duration to set
-		 */
-		public void setDuration(long duration) {
-			this.duration = duration;
-		}
-	}
 }
