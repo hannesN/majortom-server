@@ -23,76 +23,58 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
+ * 
+ * 
  * @author Hannes Niederhausen
  *
  */
 @Repository
 @Transactional
-public class MTSUserDetailDAO implements IMTSUserDetailDAO {
+public class MTSGrantedAuthorityDAO implements IMTSGrantedAuthorityDAO {
 
 	private SessionFactory sessionFactory;
-
-	/**
-	 * 
-	 */
-	public MTSUserDetailDAO(SessionFactory sessionFactory) {
-		this.sessionFactory=sessionFactory;
-	}
 	
+	
+	/**
+	 * Constructor
+	 * @param sessionFactory the hibernate session factory
+	 */
+	public MTSGrantedAuthorityDAO(SessionFactory sessionFactory) {
+		super();
+		this.sessionFactory = sessionFactory;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<MTSUserDetail> getUsers() {
-		return currentSession().createQuery("from "+MTSUserDetail.class.getName()).list();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public MTSUserDetail getUserByAPIKey(String apikey) {
-		List<?> res = currentSession().createQuery("from "+MTSUserDetail.class.getName()+" as ud where ud.apiKey='"+apikey+"'").list();
-		
-		if (res.isEmpty())
-			return null;
-		
-		return (MTSUserDetail) res.get(0);
+	public List<MTSGrantedAuthority> getAuthorities() {
+		return currentSession().createQuery("from "+MTSGrantedAuthority.class.getName()).list();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public MTSUserDetail getUser(String id) {
-		return (MTSUserDetail) currentSession().get(MTSUserDetail.class, id);
+	public MTSGrantedAuthority getAuthority(String id) {
+		return (MTSGrantedAuthority) currentSession().get(MTSGrantedAuthority.class, id);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Transactional
-	public void persist(MTSUserDetail ud) {
-		currentSession().saveOrUpdate(ud);
+	public void persist(MTSGrantedAuthority authority) {
+		currentSession().saveOrUpdate(authority);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void remove(MTSUserDetail ud) {
-		currentSession().delete(ud);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void remove(String id) {
-		
-		currentSession().delete(getUser(id));
+	public void remove(MTSGrantedAuthority authority) {
+		currentSession().delete(authority);		
 	}
 
 	private Session currentSession() {

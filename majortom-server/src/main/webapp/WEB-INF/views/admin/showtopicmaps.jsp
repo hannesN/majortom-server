@@ -5,7 +5,7 @@
 <%@ taglib prefix="s" uri="http://www.springframework.org/tags"%>
 
 <h1>All Topic Maps</h1>
-<a href="./">Go Back</a> | <a href="/majortom-server-ui/">Go to Webconsole</a>
+<a href="./">Go Back</a>
 
 <table>
 	<tr>

@@ -18,6 +18,9 @@
  */
 package de.topicmapslab.majortom.server.admin.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 import de.topicmapslab.majortom.database.jdbc.core.SqlDialect;
 
 /**
@@ -26,8 +29,12 @@ import de.topicmapslab.majortom.database.jdbc.core.SqlDialect;
  * @author Hannes Niederhausen
  *
  */
+@Entity(name="DBCONNECTION")
 public class DatabaseConnectionData {
 
+	@Id
+	private String id;
+	
 	private String host;
 	
 	private String name;
@@ -36,8 +43,29 @@ public class DatabaseConnectionData {
 	
 	private String password;
 	
-	private SqlDialect dialect;
+	private transient SqlDialect dialect;
 
+	/**
+	 * 
+	 */
+	public DatabaseConnectionData() {
+		this.id = "default";
+	}
+	
+	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+	
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
+	
 	/**
 	 * @return the host
 	 */

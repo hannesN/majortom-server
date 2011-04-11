@@ -23,46 +23,33 @@ import java.util.List;
  * @author Hannes Niederhausen
  *
  */
-public interface IMTSUserDetailDAO {
+public interface IMTSGrantedAuthorityDAO {
 
 	/**
 	 * 
-	 * @return a list of persisted users
+	 * @return a list of persisted authorities
 	 */
-	public List<MTSUserDetail> getUsers();
+	public List<MTSGrantedAuthority> getAuthorities();
 	
 	/**
-	 * Returns the user with the given id.
+	 * Returns the authority with the given id.
 	 * 
-	 * @param id the id of the user
-	 * @return null or the user instance
+	 * @param id the id of the authority (name) 
+	 * @return null or the {@link MTSGrantedAuthority} instance
 	 */
-	public MTSUserDetail getUser(String id);
+	public MTSGrantedAuthority getAuthority(String id);
+	
 	
 	/**
-	 * Returns the user with the given apikey.
-	 * 
-	 * @param apikey the apikey of the user
-	 * @return null or the user instance
+	 * persists the given authority
+	 * @param ud the authority to persist
 	 */
-	public MTSUserDetail getUserByAPIKey(String apikey);
+	public void persist(MTSGrantedAuthority authority);
 	
 	/**
-	 * persists the given user detail
-	 * @param ud the user detail to persist
+	 * Removes the given authority from the persistence layer
+	 * @param ud the authority to remove
 	 */
-	public void persist(MTSUserDetail ud);
-	
-	/**
-	 * Removes the given user from the persistence layer
-	 * @param ud the user detail to remove
-	 */
-	public void remove(MTSUserDetail ud);
-	
-	/**
-	 * Removes the user with the given id from the persistence layer
-	 * @param id the id of the user detail to remove
-	 */
-	public void remove(String id);
+	public void remove(MTSGrantedAuthority authority);
 	
 }

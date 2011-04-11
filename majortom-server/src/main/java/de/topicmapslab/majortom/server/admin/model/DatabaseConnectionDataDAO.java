@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package de.topicmapslab.majortom.server.security;
+package de.topicmapslab.majortom.server.admin.model;
 
 import java.util.List;
 
@@ -28,71 +28,51 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Transactional
-public class MTSUserDetailDAO implements IMTSUserDetailDAO {
+public class DatabaseConnectionDataDAO implements IDatabaseConnectionDataDAO {
 
 	private SessionFactory sessionFactory;
-
-	/**
-	 * 
-	 */
-	public MTSUserDetailDAO(SessionFactory sessionFactory) {
-		this.sessionFactory=sessionFactory;
-	}
 	
+	
+	/**
+	 * Constructor
+	 * @param sessionFactory the sessionFactory
+	 */
+	public DatabaseConnectionDataDAO(SessionFactory sessionFactory) {
+		super();
+		this.sessionFactory = sessionFactory;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<MTSUserDetail> getUsers() {
-		return currentSession().createQuery("from "+MTSUserDetail.class.getName()).list();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public MTSUserDetail getUserByAPIKey(String apikey) {
-		List<?> res = currentSession().createQuery("from "+MTSUserDetail.class.getName()+" as ud where ud.apiKey='"+apikey+"'").list();
-		
-		if (res.isEmpty())
-			return null;
-		
-		return (MTSUserDetail) res.get(0);
+	public List<DatabaseConnectionData> getConnections() {
+		return currentSession().createQuery("from "+DatabaseConnectionData.class.getName()).list();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public MTSUserDetail getUser(String id) {
-		return (MTSUserDetail) currentSession().get(MTSUserDetail.class, id);
+	public DatabaseConnectionData getConnection(String id) {
+		return (DatabaseConnectionData) currentSession().get(DatabaseConnectionData.class, id);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Transactional
-	public void persist(MTSUserDetail ud) {
-		currentSession().saveOrUpdate(ud);
+	public void persist(DatabaseConnectionData dbconnection) {
+		currentSession().saveOrUpdate(dbconnection);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void remove(MTSUserDetail ud) {
-		currentSession().delete(ud);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void remove(String id) {
-		
-		currentSession().delete(getUser(id));
+	public void remove(DatabaseConnectionData dbconnection) {
+		currentSession().delete(dbconnection);
 	}
 
 	private Session currentSession() {

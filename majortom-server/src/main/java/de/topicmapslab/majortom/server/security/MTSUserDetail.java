@@ -15,14 +15,14 @@
  ******************************************************************************/
 package de.topicmapslab.majortom.server.security;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -48,7 +48,7 @@ public class MTSUserDetail implements UserDetails {
 	
 	private String apiKey;
 	
-	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, targetEntity=MTSGrantedAuthority.class)
+	@ManyToMany(fetch=FetchType.EAGER, targetEntity=MTSGrantedAuthority.class)
 	private List<GrantedAuthority> authorities;
 	
 	/**
@@ -150,6 +150,13 @@ public class MTSUserDetail implements UserDetails {
 	public void setAuthorities(List<GrantedAuthority> authorities) {
 		this.authorities = authorities;
 	}
+	
+	/**
+	 * @param apiKey the apiKey to set
+	 */
+	public void setApiKey(String apiKey) {
+		this.apiKey = apiKey;
+	}
 
 	/**
 	 * @return the apiKey
@@ -168,5 +175,64 @@ public class MTSUserDetail implements UserDetails {
 		
 		apiKey = MD5Util.calculateMD5(tmp);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((username == null) ? 0 : username.hashCode());
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MTSUserDetail other = (MTSUserDetail) obj;
+		if (username == null) {
+			if (other.username != null)
+				return false;
+		} else if (!username.equals(other.username))
+			return false;
+		return true;
+	}
+
 	
+	/**
+	 * Helper method for the UI
+	 * 
+	 * @return the plainAuthorities
+	 */
+	public List<String> getPlainAuthorities() {
+		ArrayList<String> tmp = new ArrayList<String>();
+		if (authorities!=null) {
+			for (GrantedAuthority a : getAuthorities()) {
+				tmp.add(a.getAuthority());
+			}
+		}
+		return tmp;
+	}
+	
+	/**
+	 *  Helper method for the UI
+	 * 
+	 * @param plainAuthorities the plainAuthorities to set
+	 */
+	public void setPlainAuthorities(List<String> plainAuthorities) {
+		ArrayList<GrantedAuthority> newAuthorities = new ArrayList<GrantedAuthority>();
+		for (String pa : plainAuthorities) {
+			newAuthorities.add(new MTSGrantedAuthority(pa));
+		}
+		setAuthorities(newAuthorities);
+	}
 }

@@ -17,6 +17,7 @@ package de.topicmapslab.majortom.server.security;
 
 import java.util.ArrayList;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,13 +31,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 public class MTSUserDetailsService implements UserDetailsService {
 	private static final long serialVersionUID = -7779033884352226969L;
 	private IMTSUserDetailDAO userDetailDAO;
-
+	
+	@Autowired
+	private IMTSGrantedAuthorityDAO grantedAuthorityDAO;
 	/**
 	 * 
 	 */
-	public MTSUserDetailsService(IMTSUserDetailDAO userDetailDAO) {
+	public MTSUserDetailsService(IMTSUserDetailDAO userDetailDAO, IMTSGrantedAuthorityDAO grantedAuthorityDAO) {
 		super();
 		this.userDetailDAO = userDetailDAO;
+		this.grantedAuthorityDAO = grantedAuthorityDAO;
 	}
 	
 	/**
@@ -45,35 +49,49 @@ public class MTSUserDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
 
-		MTSUserDetail ud = userDetailDAO.getUser(username);
-		if (ud==null) {
-			if ("admin".equals(username)) {
-				ud = new MTSUserDetail();
-				ud.setEnabled(true);
-				ud.setPlainPassword("test");
-				ud.setUsername("hans");
-				ud.generateApiKey(System.currentTimeMillis()+"");
-				
-				ArrayList<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(3);
-				authorities.add(new MTSGrantedAuthority("ROLE_USER"));
-				ud.setAuthorities(authorities);
-				userDetailDAO.persist(ud);
-				
-				ud = new MTSUserDetail();
-				ud.setEnabled(true);
-				ud.setPlainPassword("sEcReT");
-				ud.setUsername(username);
-				
-				authorities = new ArrayList<GrantedAuthority>(3);
-				authorities.add(new MTSGrantedAuthority("ROLE_ADMIN"));
-				ud.setAuthorities(authorities);
-				userDetailDAO.persist(ud);
-			} else {
-				throw new UsernameNotFoundException("Invalid User: "+username);
-			}
+		if (userDetailDAO.getUsers().size()==0) {
+			init();
 		}
 		
+		MTSUserDetail ud = userDetailDAO.getUser(username);
+		if (ud==null)
+			throw new UsernameNotFoundException("No user: "+username);
+		
 		return ud;
+	}
+
+	/**
+	 * 
+	 */
+	private void init() {
+		// init roles
+		MTSGrantedAuthority user = new MTSGrantedAuthority("ROLE_USER");
+		grantedAuthorityDAO.persist(user);
+		
+		MTSGrantedAuthority admin = new MTSGrantedAuthority("ROLE_ADMIN");
+		grantedAuthorityDAO.persist(admin);
+		
+		
+		MTSUserDetail ud = new MTSUserDetail();
+		ud.setEnabled(true);
+		ud.setPlainPassword("test");
+		ud.setUsername("hans");
+		ud.generateApiKey(System.currentTimeMillis() + "");
+
+		ArrayList<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(3);
+		authorities.add(user);
+		ud.setAuthorities(authorities);
+		userDetailDAO.persist(ud);
+
+		ud = new MTSUserDetail();
+		ud.setEnabled(true);
+		ud.setPlainPassword("sEcReT");
+		ud.setUsername("admin");
+
+		authorities = new ArrayList<GrantedAuthority>(3);
+		authorities.add(admin);
+		ud.setAuthorities(authorities);
+		userDetailDAO.persist(ud);
 	}
 
 }

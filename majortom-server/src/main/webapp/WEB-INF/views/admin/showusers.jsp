@@ -29,11 +29,22 @@
 			</td>
 			<td>
 			<s:url value="edituser?username=${e.username}" var="editurl"/>
-			<a href="${editurl}">edit</a>
+			<a href="${editurl}">Edit</a>
+			</td>
+			<td>
+			<s:url value="generateapikey?username=${e.username}" var="generateapikey"/>
+			<a href="${generateapikey}">Generate APIKey</a>
+			</td>
+			<td>
+			<s:url value="deleteuser?username=${e.username}" var="deleteurl"/>
+			<a href="${deleteurl}">Delete</a>
 			</td>
 		</tr>
 
 	</c:forEach>
 	<!--  TODO add user -->
-
+	<tr>
+		<td><s:url value="edituser" var="editurl2" /> <a
+			href="${editurl2}">New User</a></td>
+	</tr>
 </table>

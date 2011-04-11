@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,9 @@
  ******************************************************************************/
 package de.topicmapslab.majortom.server.admin.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
@@ -27,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,10 +40,14 @@ import org.tmapi.core.TopicMap;
 
 import de.topicmapslab.majortom.database.jdbc.core.SqlDialect;
 import de.topicmapslab.majortom.server.admin.model.DatabaseConnectionData;
+import de.topicmapslab.majortom.server.admin.model.IDatabaseConnectionDataDAO;
 import de.topicmapslab.majortom.server.admin.model.NewTopicMapData;
-import de.topicmapslab.majortom.server.admin.util.IOUtil;
 import de.topicmapslab.majortom.server.cache.CacheHandler;
+import de.topicmapslab.majortom.server.security.IMTSGrantedAuthorityDAO;
 import de.topicmapslab.majortom.server.security.IMTSUserDetailDAO;
+import de.topicmapslab.majortom.server.security.MTSGrantedAuthority;
+import de.topicmapslab.majortom.server.security.MTSGrantedAuthorityEditor;
+import de.topicmapslab.majortom.server.security.MTSUserDetail;
 import de.topicmapslab.majortom.server.topicmaps.TopicMapsHandler;
 
 /**
@@ -55,6 +63,13 @@ public class AdminController {
 
 	@Autowired
 	private IMTSUserDetailDAO userDetailDAO;
+	
+	@Autowired
+	private IMTSGrantedAuthorityDAO grantedAuthorityDAO;
+	
+	@Autowired
+	private IDatabaseConnectionDataDAO databaseConnectionDataDAO;
+	
 	private TopicMapsHandler tmh;
 
 	// private Properties jedisProperties = new Properties();
@@ -64,36 +79,38 @@ public class AdminController {
 	 */
 	public AdminController() {
 		tmh = TopicMapsHandler.getInstance();
-
-		// InputStream stream;
-		// try {
-		// stream = getClass().getResource("/jedis.properties").openStream();
-		// // jedisProperties.load(stream);
-		// stream.close();
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
 	}
 
+	/**
+	 * Registers the property editor for the authority class
+	 * @param binder
+	 */
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		binder.registerCustomEditor(MTSGrantedAuthority.class, "authorities", new MTSGrantedAuthorityEditor(grantedAuthorityDAO));
+//		binder.registerCustomEditor(List.class, "authorities", new MTSGrantedAuthorityListEditor());
+	}
+	
 	/**
 	 * Returns the form for the database connection
 	 */
 	@RequestMapping("/configdb")
-	public ModelAndView showDBConfig() {
-
-		DatabaseConnectionData dbcd = IOUtil.loadDatabaseConnectionData();
-
-		if (dbcd == null) {
+	public ModelAndView showDBConfig(String info) {
+		DatabaseConnectionData dbcd = null;
+		List<DatabaseConnectionData> connections = databaseConnectionDataDAO.getConnections();
+		if (connections.isEmpty()) {
 			dbcd = new DatabaseConnectionData();
 			dbcd.setDialect(SqlDialect.POSTGRESQL);
-			logger.debug("Created new DatabaseConnectionData: " + dbcd.toString());
-			System.err.println("Created new DatabaseConnectionData: " + dbcd.toString());
+			
 		} else {
-			logger.debug("Loaded DatabaseConnectionData: " + dbcd.toString());
-			System.err.println("Loaded DatabaseConnectionData: " + dbcd.toString());
+			dbcd = connections.get(0);
 		}
 
-		return new ModelAndView("dbconnection", "command", dbcd);
+		
+		ModelAndView mv = new ModelAndView("dbconnection", "command", dbcd);
+		if (info!=null)
+			mv.addObject("info", info);
+		return mv;
 	}
 
 	/**
@@ -112,10 +129,10 @@ public class AdminController {
 		} else {
 			System.err.println("Got DatabaseConnectionData: " + dbcd);
 		}
-
-		IOUtil.persistDatabaseConnectionData(dbcd);
-
-		return showDBConfig();
+		
+		databaseConnectionDataDAO.persist(dbcd);
+		
+		return showDBConfig("Database Connection Saved");
 	}
 
 	/**
@@ -138,7 +155,8 @@ public class AdminController {
 	 * @throws ServletException
 	 */
 	@RequestMapping("createtm")
-	public ModelAndView newTopicMap(NewTopicMapData data, @RequestParam(value = "file", required = false) MultipartFile file) throws ServletException {
+	public ModelAndView newTopicMap(NewTopicMapData data, @RequestParam(value = "file", required = false) MultipartFile file)
+			throws ServletException {
 
 		String id = tmh.createTopicMap(data.getBaselocator(), data.isInmemory(), data.getInitialCapacity());
 
@@ -148,23 +166,9 @@ public class AdminController {
 			tmh.loadFromFileUpload(id, file);
 		}
 
-		// flush redis cache for queries
-		// Jedis jedis = getJedis();
-
 		if (CacheHandler.isCachingEnabled()) {
 			logger.info("Deleting Cache with keys");
 			CacheHandler.getCache().remove(Pattern.compile("tmql:" + id + "*"));
-			// Set<String> keys = jedis.keys("tmql:" + id + "*");
-			// if (!keys.isEmpty()) {
-			// jedis.del(keys.toArray(new String[keys.size()]));
-			// }
-			//
-			// // jedis.flushDB();
-			// try {
-			// jedis.disconnect();
-			// } catch (IOException e) {
-			// logger.error("Could not disconnect from jedis server", e);
-			// }
 		}
 
 		return showTopicMaps();
@@ -184,7 +188,7 @@ public class AdminController {
 
 		return new ModelAndView("showtopicmaps", "entries", resultMap);
 	}
-	
+
 	/**
 	 * Renders a list of users
 	 * 
@@ -293,16 +297,82 @@ public class AdminController {
 		return getMemory();
 	}
 
-	// /**
-	// * Returns the jedis and checks the connection before
-	// *
-	// * @return
-	// */
-	// private Jedis getJedis() {
-	// Jedis jedis = new Jedis(jedisProperties.getProperty("hostname"));
-	// jedis.auth(jedisProperties.getProperty("password"));
-	// jedis.select(Integer.parseInt(jedisProperties.getProperty("storeId")));
-	//
-	// return jedis;
-	// }
+	/**
+	 * Returns the form for the database connection
+	 */
+	@RequestMapping("/edituser")
+	public ModelAndView showUserConfig(String username) {
+		MTSUserDetail user = null;
+		if (username != null) {
+			user = userDetailDAO.getUser(username);
+		}
+		if (user == null) {
+			user = new MTSUserDetail();
+		}
+
+		ModelAndView modelAndView = new ModelAndView("user", "command", user);
+		
+		List<String> items = new ArrayList<String>();
+		List<MTSGrantedAuthority> authorities = grantedAuthorityDAO.getAuthorities();
+		
+		for (MTSGrantedAuthority a : authorities) {
+			items.add(a.getAuthority());
+		}
+		
+		modelAndView.addObject("items", authorities);
+		modelAndView.addObject("items2", items);
+		
+		return modelAndView;
+	}
+	
+	/**
+	 * Persist the new db configuration and redirects to "configdb"
+	 * 
+	 * @param dbcd
+	 *            the new db config
+	 * @param result
+	 * @return
+	 */
+	@RequestMapping("/modifyuser")
+	public ModelAndView modifyUserConfig(@ModelAttribute("user") MTSUserDetail user, BindingResult result) {
+		if (user != null) {
+			if (user.getApiKey()==null)
+				user.generateApiKey(Long.toString(System.currentTimeMillis()));
+			userDetailDAO.persist(user);
+
+		}
+
+		return showUsers();
+	}
+	
+	/**
+	 * Removes the user with the given id
+	 * 
+	 * @param username the username
+	 * @return
+	 */
+	@RequestMapping("/deleteuser")
+	public ModelAndView deleteUserConfig(String username) {
+		userDetailDAO.remove(username);
+
+		return showUsers();
+	}
+	
+	/**
+	 * Generates an apikey for the user with the given id
+	 * 
+	 * @param username the username
+	 * @return
+	 */
+	@RequestMapping("/generateapikey")
+	public ModelAndView generateAPIKey(String username) {
+		
+		MTSUserDetail user = userDetailDAO.getUser(username);
+		
+		user.generateApiKey(Long.toString(System.currentTimeMillis()));
+
+		userDetailDAO.persist(user);
+		
+		return showUsers();
+	}
 }

@@ -26,7 +26,12 @@
 	<b:bean id="sessionFactory"
 		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
 		<b:property name="dataSource" ref="configDataSource" />
-		<b:property name="packagesToScan" value="de.topicmapslab.majortom.server.security" />
+		<b:property name="packagesToScan">
+			<b:list>
+				<b:value>de.topicmapslab.majortom.server.security</b:value>
+				<b:value>de.topicmapslab.majortom.server.admin.model</b:value>
+			</b:list>
+		</b:property>
 		<b:property name="hibernateProperties">
 			<b:props>
 				<b:prop key="dialect">{hibernate.dialect}</b:prop>
@@ -44,10 +49,20 @@
 		class="de.topicmapslab.majortom.server.security.MTSUserDetailDAO">
 		<b:constructor-arg ref="sessionFactory" />
 	</b:bean>
+	
+	<b:bean id="mtsGrantedAuthorityDAO"
+		class="de.topicmapslab.majortom.server.security.MTSGrantedAuthorityDAO">
+		<b:constructor-arg ref="sessionFactory" />
+	</b:bean>
 
+	<b:bean id="databaseConnectionDataDAO"
+		class="de.topicmapslab.majortom.server.admin.model.DatabaseConnectionDataDAO">
+		<b:constructor-arg ref="sessionFactory" />
+	</b:bean>
 	<b:bean id="mtsUserService"
 		class="de.topicmapslab.majortom.server.security.MTSUserDetailsService">
 		<b:constructor-arg ref="mtsUserDetailDAO" />
+		<b:constructor-arg ref="mtsGrantedAuthorityDAO" />
 	</b:bean>
 
 	<tx:annotation-driven transaction-manager="transactionManager" />
