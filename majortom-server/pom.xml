@@ -7,13 +7,15 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>war</packaging>
 
-	<name>majortom-server J2EE 1.4 Webapp</name>
+	<name>majortom-server</name>
 	<url>http://maven.apache.org</url>
 
 
 	<properties>
 		<spring.version>3.0.5.RELEASE</spring.version>
-		<tmql.version>3.1.0-SNAPSHOT</tmql.version>	
+		<tmql.version>3.1.0-SNAPSHOT</tmql.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<server.url>http://localhost:8080</server.url>
 	</properties>
 
 	<build>
@@ -27,7 +29,25 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
-			<plugin>
+			<!--<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+				<version>1.0-alpha-2</version>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<goal>read-project-properties</goal>
+						</goals>
+						<configuration>
+							<files>
+								<file>deploy.properties</file>
+							</files>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			--><plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>tomcat-maven-plugin</artifactId>
 				<version>1.1</version>
@@ -35,7 +55,7 @@
 					<server>mt-server</server>
 					<warFile>${project.build.directory}/${project.build.finalName}.war</warFile>
 					<update>true</update>
-					<url>http://nemo.tm.informatik.uni-leipzig.de:8080/manager/html</url>
+					<url>${server.url}/manager/html</url>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -130,6 +150,12 @@
 			<artifactId>majortom-db</artifactId>
 			<version>1.2.0-SNAPSHOT</version>
 			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>hsqldb</artifactId>
+					<groupId>org.hsqldb</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 
@@ -245,9 +271,9 @@
 			<version>1.2.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-		    <groupId>commons-lang</groupId>
-		    <artifactId>commons-lang</artifactId>
-		    <version>2.3</version>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.3</version>
 		</dependency>
 		<dependency>
 			<groupId>de.topicmapslab</groupId>
@@ -261,8 +287,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate</artifactId>
-			<version>3.2.7.ga</version>
+			<artifactId>hibernate-core</artifactId>
+			<version>3.6.3.Final</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -273,16 +299,37 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-annotations</artifactId>
-			<version>3.4.0.GA</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${spring.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-orm</artifactId>
-			<version>${spring.version}</version>
+			<groupId>asm</groupId>
+			<artifactId>asm</artifactId>
+			<version>3.3.1</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>3.12.1.GA</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+			<version>2.2</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>2.0.0</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -340,4 +387,17 @@
 			<url>http://zodiac.springsource.com/maven/bundles/milestone</url>
 		</repository>
 	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>sonatype-public</id>
+			<url>http://repository.sonatype.org/content/groups/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 </project>
