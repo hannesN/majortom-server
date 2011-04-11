@@ -40,6 +40,7 @@ public class MTSUserDetail implements UserDetails {
 	@Id
 	private String username;
 	
+	private transient String plainPassword;
 	
 	private String password;
 
@@ -72,6 +73,13 @@ public class MTSUserDetail implements UserDetails {
 	@Override
 	public String getUsername() {
 		return username;
+	}
+	
+	/**
+	 * @return the plainPassword
+	 */
+	public String getPlainPassword() {
+		return plainPassword;
 	}
 
 	/**
@@ -118,9 +126,17 @@ public class MTSUserDetail implements UserDetails {
 	 * @param password the password to set
 	 */
 	public void setPassword(String password) {
-		this.password = MD5Util.calculateMD5(password);
+		this.password = password;
 	}
 
+	/**
+	 * @param plainPassword the plainPassword to set
+	 */
+	public void setPlainPassword(String plainPassword) {
+		this.plainPassword = plainPassword;
+		setPassword(MD5Util.calculateMD5(plainPassword));
+	}
+	
 	/**
 	 * @param enabled the enabled to set
 	 */

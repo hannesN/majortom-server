@@ -28,7 +28,7 @@
 				</c:forEach>
 			</td>
 			<td>
-			<s:url value="edituser?id=${e.username}" var="editurl"/>
+			<s:url value="edituser?username=${e.username}" var="editurl"/>
 			<a href="${editurl}">edit</a>
 			</td>
 		</tr>

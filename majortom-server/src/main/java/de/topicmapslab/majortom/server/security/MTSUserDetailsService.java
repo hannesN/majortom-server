@@ -50,7 +50,7 @@ public class MTSUserDetailsService implements UserDetailsService {
 			if ("admin".equals(username)) {
 				ud = new MTSUserDetail();
 				ud.setEnabled(true);
-				ud.setPassword("test");
+				ud.setPlainPassword("test");
 				ud.setUsername("hans");
 				ud.generateApiKey(System.currentTimeMillis()+"");
 				
@@ -61,7 +61,7 @@ public class MTSUserDetailsService implements UserDetailsService {
 				
 				ud = new MTSUserDetail();
 				ud.setEnabled(true);
-				ud.setPassword("sEcReT");
+				ud.setPlainPassword("sEcReT");
 				ud.setUsername(username);
 				
 				authorities = new ArrayList<GrantedAuthority>(3);
