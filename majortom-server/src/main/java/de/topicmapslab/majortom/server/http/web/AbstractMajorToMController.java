@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import de.topicmapslab.majortom.server.http.util.JSONView;
 import de.topicmapslab.majortom.server.security.IMTSUserDetailDAO;
 import de.topicmapslab.majortom.server.security.MTSUserDetail;
-import de.topicmapslab.majortom.server.topicmaps.TopicMapsHandler;
+import de.topicmapslab.majortom.server.topicmaps.ITopicMapHandler;
 import de.topicmapslab.tmql4j.components.processor.runtime.ITMQLRuntime;
 
 /**
@@ -39,7 +39,8 @@ public class AbstractMajorToMController {
 	@Autowired
 	private IMTSUserDetailDAO userDetailDAO;
 	protected ITMQLRuntime runtime;
-	protected TopicMapsHandler tmh;
+	@Autowired
+	protected ITopicMapHandler tmh;
 
 	/**
 	 * 
@@ -127,6 +128,13 @@ public class AbstractMajorToMController {
 	 */
 	public void setUserDetailDAO(IMTSUserDetailDAO userDetailDAO) {
 		this.userDetailDAO = userDetailDAO;
+	}
+	
+	/**
+	 * @param tmh the tmh to set
+	 */
+	public void setTmh(ITopicMapHandler tmh) {
+		this.tmh = tmh;
 	}
 	
 	/**

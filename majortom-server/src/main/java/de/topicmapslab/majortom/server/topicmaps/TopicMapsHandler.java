@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -51,7 +52,8 @@ import de.topicmapslab.majortom.database.store.JdbcTopicMapStoreProperty;
 import de.topicmapslab.majortom.inmemory.store.InMemoryTopicMapStore;
 import de.topicmapslab.majortom.memory.importer.Importer;
 import de.topicmapslab.majortom.model.core.ITopicMap;
-import de.topicmapslab.majortom.server.admin.util.IOUtil;
+import de.topicmapslab.majortom.server.admin.model.DatabaseConnectionData;
+import de.topicmapslab.majortom.server.admin.model.IDatabaseConnectionDataDAO;
 import de.topicmapslab.majortom.server.http.util.MD5Util;
 import de.topicmapslab.majortom.store.TopicMapStoreProperty;
 import de.topicmapslab.majortom.util.FeatureStrings;
@@ -62,42 +64,26 @@ import de.topicmapslab.majortom.util.FeatureStrings;
  * @author Hannes Niederhausen
  * 
  */
-public class TopicMapsHandler {
+public class TopicMapsHandler implements ITopicMapHandler {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(TopicMapsHandler.class);
-
-	private static TopicMapsHandler instance;
+	private static Logger logger = LoggerFactory.getLogger(TopicMapsHandler.class);
 
 	private BidiMap topicMapMap;
-
-	private TopicMapSystem dbTopicMapSystem;
-
-	/**
-	 * @return the instance
-	 */
-	public static TopicMapsHandler getInstance() {
-		if (instance == null)
-			instance = new TopicMapsHandler();
-		return instance;
-	}
+	
+	private IDatabaseConnectionDataDAO databaseConnectionDataDAO;
 
 	/**
 	 * Constructor
 	 */
-	private TopicMapsHandler() {
+	public TopicMapsHandler(IDatabaseConnectionDataDAO databaseConnectionDataDAO) {
 		topicMapMap = new DualHashBidiMap();
+		this.databaseConnectionDataDAO = databaseConnectionDataDAO;
 	}
 
 	/**
-	 * Returns the id of the topic map with the given locator
-	 * 
-	 * @param baseLocator
-	 *            the base locator to check
-	 * @return the id of the topic map with the given base locator
-	 * @throws UnknownTopicMapException
-	 *             if no topic map with the given locator exists
+	 * {@inheritDoc}
 	 */
+	@Override
 	public String getTopicMapId(String baseLocator)
 			throws UnknownTopicMapException {
 
@@ -110,20 +96,9 @@ public class TopicMapsHandler {
 	}
 
 	/**
-	 * Creates a topic map with the given locator and returns the id of the
-	 * topic map.
-	 * 
-	 * <p>
-	 * If a topic map with the given locator already exists its id will be
-	 * returned.
-	 * </p>
-	 * 
-	 * @param baseLocator
-	 * @param inMemory
-	 *            flag whether a in memory topic map is created
-	 * @return the id of the topic map
-	 * @throws ServletException
+	 * {@inheritDoc}
 	 */
+	@Override
 	public String createTopicMap(String baseLocator, boolean inMemory,
 			int initialCapacity) throws ServletException {
 
@@ -161,8 +136,9 @@ public class TopicMapsHandler {
 	}
 
 	/**
-	 * Closes the topic map with the given id and frees resources
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void closeTopicMap(String id) {
 		TopicMap tm = (TopicMap) topicMapMap.get(id);
 		if (tm == null)
@@ -172,8 +148,9 @@ public class TopicMapsHandler {
 	}
 
 	/**
-	 * Removes the topic map with the given id
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void removeTopicMap(String id) {
 		TopicMap tm = (TopicMap) topicMapMap.get(id);
 		if (tm == null)
@@ -184,8 +161,9 @@ public class TopicMapsHandler {
 	}
 
 	/**
-	 * Clears the topic map with the given id
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void clearTopicMap(String id) {
 		TopicMap tm = (TopicMap) topicMapMap.get(id);
 		if (tm == null)
@@ -194,14 +172,9 @@ public class TopicMapsHandler {
 	}
 
 	/**
-	 * Returns the topic map with the given id.
-	 * 
-	 * @param id
-	 *            the id of the topic map
-	 * @return the {@link TopicMap}
-	 * @throws IllegalArgumentException
-	 *             if there is no topic map for the id
+	 * {@inheritDoc}
 	 */
+	@Override
 	public TopicMap getTopicMap(String id) throws IllegalArgumentException {
 
 		TopicMap tm = (TopicMap) topicMapMap.get(id);
@@ -214,24 +187,18 @@ public class TopicMapsHandler {
 	}
 
 	/**
-	 * Returns an unmodifiable map containing all topic maps and their id
-	 * 
-	 * @return the map with the created topic maps
+	 * {@inheritDoc}
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public Map<String, TopicMap> getTopicMapMap() {
 		return Collections.unmodifiableMap(topicMapMap);
 	}
 
 	/**
-	 * Deserializes the file and stores the data in the topic map with the given
-	 * id
-	 * 
-	 * @param id
-	 *            id of the target topic map
-	 * @param file
-	 *            the multipart file
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void loadFromFileUpload(String id, final MultipartFile file) {
 
 		logger.info("Start Loading file: " + file.getOriginalFilename());
@@ -298,14 +265,9 @@ public class TopicMapsHandler {
 	}
 
 	/**
-	 * Deserializes the local file and stores the data in the topic map with the
-	 * given id
-	 * 
-	 * @param id
-	 *            id of the target topic map
-	 * @param filename
-	 *            the name of the local file
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void loadFromLocalFile(String id, final String filename) {
 		logger.info("Start Loading file: " + filename);
 		final TopicMap topicMap = (TopicMap) topicMapMap.get(id);
@@ -419,42 +381,34 @@ public class TopicMapsHandler {
 	}
 
 	private TopicMapSystem getDBTopicMapSystem() {
-
-		if (dbTopicMapSystem == null) {
-			de.topicmapslab.majortom.server.admin.model.DatabaseConnectionData data = IOUtil
-					.loadDatabaseConnectionData();
-			if (data == null) {
-				throw new UnsupportedOperationException(
-						"Could not find a database configuration. Please configure the connection using the admin interface");
-			}
-
-			try {
-				TopicMapSystemFactoryImpl fac = new TopicMapSystemFactoryImpl();
-				fac.setProperty(TopicMapStoreProperty.TOPICMAPSTORE_CLASS,
-						"de.topicmapslab.majortom.database.store.JdbcTopicMapStore");
-				fac.setProperty(JdbcTopicMapStoreProperty.DATABASE_HOST,
-						data.getHost());
-				fac.setProperty(JdbcTopicMapStoreProperty.DATABASE_USER,
-						data.getUsername());
-				fac.setProperty(JdbcTopicMapStoreProperty.DATABASE_PASSWORD,
-						data.getPassword());
-				fac.setProperty(JdbcTopicMapStoreProperty.DATABASE_NAME,
-						data.getName());
-				fac.setProperty(JdbcTopicMapStoreProperty.SQL_DIALECT, data
-						.getDialect().name());
-
-				fac.setFeature(
-						FeatureStrings.TOPIC_MAPS_TYPE_INSTANCE_ASSOCIATION,
-						false);
-				fac.setFeature(FeatureStrings.SUPPORT_HISTORY, true);
-
-				dbTopicMapSystem = fac.newTopicMapSystem();
-
-			} catch (Exception e) {
-				logger.error("Could not create topic map", e);
-			}
+		DatabaseConnectionData data = null;
+		List<DatabaseConnectionData> connections = databaseConnectionDataDAO.getConnections();
+		if (connections.size()>0) {
+			data = connections.get(0);
 		}
-		return dbTopicMapSystem;
+		if (data == null) {
+			throw new UnsupportedOperationException(
+					"Could not find a database configuration. Please configure the connection using the admin interface");
+		}
+
+		try {
+			TopicMapSystemFactoryImpl fac = new TopicMapSystemFactoryImpl();
+			fac.setProperty(TopicMapStoreProperty.TOPICMAPSTORE_CLASS, "de.topicmapslab.majortom.database.store.JdbcTopicMapStore");
+			fac.setProperty(JdbcTopicMapStoreProperty.DATABASE_HOST, data.getHost());
+			fac.setProperty(JdbcTopicMapStoreProperty.DATABASE_USER, data.getUsername());
+			fac.setProperty(JdbcTopicMapStoreProperty.DATABASE_PASSWORD, data.getPassword());
+			fac.setProperty(JdbcTopicMapStoreProperty.DATABASE_NAME, data.getName());
+			fac.setProperty(JdbcTopicMapStoreProperty.SQL_DIALECT, data.getDialect().name());
+
+			fac.setFeature(FeatureStrings.TOPIC_MAPS_TYPE_INSTANCE_ASSOCIATION, false);
+			fac.setFeature(FeatureStrings.SUPPORT_HISTORY, true);
+
+			return fac.newTopicMapSystem();
+
+		} catch (Exception e) {
+			logger.error("Could not create topic map", e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void indexTopicMap(TopicMap topicMap) {

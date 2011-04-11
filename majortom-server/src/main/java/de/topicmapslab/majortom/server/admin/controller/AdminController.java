@@ -48,7 +48,7 @@ import de.topicmapslab.majortom.server.security.IMTSUserDetailDAO;
 import de.topicmapslab.majortom.server.security.MTSGrantedAuthority;
 import de.topicmapslab.majortom.server.security.MTSGrantedAuthorityEditor;
 import de.topicmapslab.majortom.server.security.MTSUserDetail;
-import de.topicmapslab.majortom.server.topicmaps.TopicMapsHandler;
+import de.topicmapslab.majortom.server.topicmaps.ITopicMapHandler;
 
 /**
  * Controller for the admin pages.
@@ -70,16 +70,11 @@ public class AdminController {
 	@Autowired
 	private IDatabaseConnectionDataDAO databaseConnectionDataDAO;
 	
-	private TopicMapsHandler tmh;
+	@Autowired
+	private ITopicMapHandler tmh;
 
 	// private Properties jedisProperties = new Properties();
 
-	/**
-	 * 
-	 */
-	public AdminController() {
-		tmh = TopicMapsHandler.getInstance();
-	}
 
 	/**
 	 * Registers the property editor for the authority class
@@ -241,6 +236,13 @@ public class AdminController {
 		return showTopicMaps();
 	}
 
+	/**
+	 * @param tmh the tmh to set
+	 */
+	public void setTmh(ITopicMapHandler tmh) {
+		this.tmh = tmh;
+	}
+	
 	/**
 	 * Clears the redis cache and returns an info message
 	 * 

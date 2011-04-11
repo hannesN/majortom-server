@@ -59,6 +59,12 @@
 		class="de.topicmapslab.majortom.server.admin.model.DatabaseConnectionDataDAO">
 		<b:constructor-arg ref="sessionFactory" />
 	</b:bean>
+	
+	<b:bean id="tmh"
+		class="de.topicmapslab.majortom.server.topicmaps.TopicMapsHandler">
+		<b:constructor-arg ref="databaseConnectionDataDAO" />
+	</b:bean>
+	
 	<b:bean id="mtsUserService"
 		class="de.topicmapslab.majortom.server.security.MTSUserDetailsService">
 		<b:constructor-arg ref="mtsUserDetailDAO" />

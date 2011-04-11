@@ -76,7 +76,6 @@ public class MajorToMController extends AbstractMajorToMController {
 	 * Constructor
 	 */
 	public MajorToMController() {
-		tmh = TopicMapsHandler.getInstance();
 		runtime = TMQLRuntimeFactory.newFactory().newRuntime(TmqlRuntime2007.TMQL_2007);
 	}
 
