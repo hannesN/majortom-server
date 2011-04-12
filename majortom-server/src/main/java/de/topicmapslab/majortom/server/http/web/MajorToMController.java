@@ -57,6 +57,7 @@ import de.topicmapslab.majortom.server.topicmaps.TopicMapsHandler;
 import de.topicmapslab.majortom.server.topicmaps.UnknownTopicMapException;
 import de.topicmapslab.sesame.simpleinterface.SPARQLResultFormat;
 import de.topicmapslab.sesame.simpleinterface.TMConnector;
+import de.topicmapslab.tmql4j.components.processor.results.jtmqr.writer.JTMQRFormat;
 import de.topicmapslab.tmql4j.components.processor.runtime.TMQLRuntimeFactory;
 import de.topicmapslab.tmql4j.path.components.processor.runtime.TmqlRuntime2007;
 import de.topicmapslab.tmql4j.query.IQuery;
@@ -179,7 +180,7 @@ public class MajorToMController extends AbstractMajorToMController {
 	 * Retrieves a TMQL query, appends USE JTMQR and executes the query.
 	 */
 	@RequestMapping(value = "/tmql/{id}", method = { RequestMethod.GET, RequestMethod.POST })
-	public JSONView getTMQL(@PathVariable String id, String query, String serverid, String callback, String apikey, HttpServletRequest req,
+	public JSONView getTMQL(@PathVariable String id, String query, String jtmqr,String serverid, String callback, String apikey, HttpServletRequest req,
 			HttpServletResponse resp) throws Exception {
 		
 		if (!isValidKey(apikey))
@@ -228,7 +229,11 @@ public class MajorToMController extends AbstractMajorToMController {
 				logger.info("Query: '" + queryString + "' Duration: " + duration);
 				logger.info("Query Result: '" + tmqlQuery.getResults().toString());
 
-				resString = tmqlQuery.getResults().toJTMQR();
+				JTMQRFormat format = JTMQRFormat.JTMQR_1;
+				if ( jtmqr != null && "2".equalsIgnoreCase(jtmqr)){
+					 format = JTMQRFormat.JTMQR_2;
+				}
+				resString = tmqlQuery.getResults().toJTMQR(format);
 
 				if (CacheHandler.isCachingEnabled()) {
 					CacheHandler.getCache().set(redisKey, resString);
