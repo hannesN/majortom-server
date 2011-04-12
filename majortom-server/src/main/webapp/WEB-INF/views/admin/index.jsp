@@ -6,7 +6,7 @@
 
 <ul>
 	<li><a href="showtopicmaps">Show Topic Maps</a></li>
-	<li><a href="newtopicmap">Create Topic Maps</a></li>
+	<li><a href="newtopicmap">Create Topic Map</a></li>
 	<li><a href="showusers">Show Users</a></li>
 	<li><a href="configdb">Configure DB Store</a></li>
 </ul>

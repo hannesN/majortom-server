@@ -1,6 +1,7 @@
 # This is the class of cache for example:
 #
-# If no cache class is set caching is disabled
+# If no cache class is set caching is disabled.
+# You can choose between no caching, in memory caching or caching with an external redis store.
 #
 # class = de.topicmapslab.majortom.server.cache.RedisCache
 class = de.topicmapslab.majortom.server.cache.MemoryCache
@@ -14,13 +15,12 @@ class = de.topicmapslab.majortom.server.cache.MemoryCache
 # The password for authentication
 # password = sEcR3t
 
-# Id of the database that shall be used
+# Id of the redis database that shall be used
 # storeId = 0
 
 # configure the hibernate connection to a database or just  
 # please modify the path in the jdbc url if you want to use hsql
-
-
+# if you want to use the hsql backend just alter the path in the jdbc url
 hibernate.dialect=org.hibernate.dialect.HSQLDialect
 
 db.driver=org.hsqldb.jdbcDriver

@@ -2,5 +2,7 @@
 
 include::install.txt[]
 
+include::admin.txt[]
+
 include::http.txt[]
 
