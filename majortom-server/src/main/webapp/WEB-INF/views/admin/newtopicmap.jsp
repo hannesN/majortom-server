@@ -4,6 +4,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
+<h1>Create a new Topic Map</h1>
+<a href="./">Go Back</a>
+
 <form:form action="createtm" method="post" enctype="multipart/form-data">
 	<table>
 		<tr>
