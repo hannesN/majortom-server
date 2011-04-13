@@ -4,6 +4,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
+<h1>Create a new user</h1>
+<a href="./">Go Back</a>
+
 <form:form action="modifyuser" method="post">
 	<table>
 		<tr>
@@ -21,7 +24,7 @@
 			<td><form:checkbox path="enabled" /></td>
 		</tr>
 		<tr>
-			<td>authorities2</td>
+			<td>Role</td>
 			<td><form:checkboxes path="plainAuthorities" items="${items2}"/> <br />
 			<form:errors path="plainAuthorities"></form:errors></td>
 		</tr>
