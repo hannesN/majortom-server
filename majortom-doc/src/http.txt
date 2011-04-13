@@ -1,106 +1,159 @@
 == MajorToM HTTP API ==
 
-The MaJorToM Server provides an URL-based API. 
+The MaJorToM-Server provides an URL-based API. 
 
-The result is a JSON-object which has the following form:
+=== The result format ===
+
+All queries to the API result in a JSON-object which has the following form:
 
 ~~~~~~~~~~~~~~~~~~~~
 {code : "0", msg : "OK", data : [] }
 ~~~~~~~~~~~~~~~~~~~~
 
-*code* the code indicates the success of the query. 1 means something went wrong, 0 indicates the query was a success.
-*msg* contains a message, which explains an error.
-*data* contains the result values, e.g. the JTMQR object of a TMQL query
+The fields in detail:
+* The *code* indicates the success of the query. 1 means something went wrong, 0 indicates the query was a success.
+* The *msg* contains a message, which explains an error.
+* The *data* contains the result values, e.g. the JTMQR object of a TMQL query
 
+NOTE: For a detailed description of the JTMQR format please look at http://code.google.com/p/tmql/wiki/JTMQR
 
-The API uses an id of the topic map. The id is the MD5 checksum of the base locator.
+To identify the different Topic Maps the MaJorToM-Server uses an unique id of the Topic Map. The unique id is the MD5 checksum of the base locator.
 
-The following variables will be used to shorten the URL:
+The following variables will be used to shorten the URL in the following API documentation:
 
 * *SERVER* the url for the server e.g. http://majortom.topicmapslab.de
-* *TMID* for the topic map id
+* *TMID* for the unique Topic Map id
 
-Every api call needs a parameter *apikey* which is given for every user! 
+Every API call needs a parameter *apikey* which is unique to given for every user!
+
+=== Get the list of all available Topic Maps ===
+
+To get an overview on the available Topic Maps on the server, you can use the following URL:
+
+~~~~~~~~~~~~~~~~~~~~~~~~
+SERVER/tm/topicmaps
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+You need only one parameter:
+
+[options="header"]
+|=================================
+|Name|Type|Description
+|apikey|String|the apikey for the user
+|=================================
 
 
 === Get the ID of a Topic Map ===
 
-Instead of calculating the id you can ask the server for it. Use the url:
+Instead of calculating the unique id you can ask the server for it. Use the following URL with a GET request:
 ~~~~~~~~~~~~~~~~~~~~~~~~
 SERVER/tm/resolvetm
 ~~~~~~~~~~~~~~~~~~~~~~~~
-This url needs the following parameter:
+This URL needs the following parameters:
 
 
 [options="header"]
 |=================================
 |Name|Type|Description
 |bl|String|Baselocator to resolve
-|apikey|the apikey for the user
+|apikey|String|the apikey for the user
 |=================================
 
 
 === Execute TMQL Queries ===
 
-Executing tmql queries is easy. Just use the following URL:
+Executing TMQL queries is easy. Just use the following URL:
 ~~~~~~~~~~~~~~~~~~~~
 SERVER/tm/tmql/TMID
 ~~~~~~~~~~~~~~~~~~~~
 
-This url needs the following parameter (Post and GET are supported):
-
+This URL needs the following parameter (POST and GET are supported, we strongly encourage you to use a POST request here):
 
 [options="header"]
 |=================================
 |Name|Type|Description
 |query|String|tmql query
-|apikey|the apikey for the user
+|apikey|String|the apikey for the user
 |=================================
 
-The JTMQR-Result is stored inside the data field of the result query.
+The JTMQR result is stored inside the data field of the query result.
 
-WARNING: The results will be creates using IResultSet.toJTMQR. Do not use "USE JTMQR" inside the query!!
+WARNING: The results will be created using IResultSet.toJTMQR. Do not use "USE JTMQR" inside the query!
 
 NOTE: Update Queries are also supported.
 
+=== Execute a SPARQL query ===
+
+Similar to TMQL queries, you may execute SPARQL queries with the following URL:
+
+~~~~~~~~~~~~~~~~~~~~
+SERVER/tm/sparql/TMID
+~~~~~~~~~~~~~~~~~~~~
+
+This URL needs the following parameter (POST and GET are supported, we strongly encourage you to use a POST request here):
+
+[options="header"]
+|=================================
+|Name|Type|Description
+|query|String|sparql query
+|apikey|String|the apikey for the user
+|=================================
+
+
+=== Search the fulltext index ===
+
+At Topic Map loading time, a fulltext index (based on Beru and Lucene) is created. Thus, you can do fulltext querying with the usual Lucene wuery syntax with the following URL:
+
+~~~~~~~~~~~~~~~~~~~~
+SERVER/tm/beru/TMID
+~~~~~~~~~~~~~~~~~~~~
+ 
+This URL needs the following parameter (POST and GET are supported):
+
+[options="header"]
+|=================================
+|Name|Type|Description
+|query|String|sparql query
+|apikey|String|the apikey for the user
+|=================================
+
+
 === Get a Serialization of a Topic Map ===
 
-To serilaize a topic map just use the URL:
+To serialize a topic map just use the URL:
 
 ~~~~~~~~~~~~~~~~~~~~
 SERVER/tm/xtm/TMID
 ~~~~~~~~~~~~~~~~~~~~
-or
+for an XTM serialization or
 ~~~~~~~~~~~~~~~~~~~~
 SERVER/tm/ctm/TMID
 ~~~~~~~~~~~~~~~~~~~~
+for an CTM serialization.
 
-The parameter:
+The parameters are (both, POST and GET requests are allowed):
 
 [options="header"]
 |=================================
-|apikey|the apikey for the user
+|Name|Type|Description
+|apikey|String|the apikey for the user
 |=================================
-
 
 The serialization will be the result in the stream.
 
-=== Clear Cache for a Topic Map ===
+=== Clear the cache for a Topic Map ===
 
-To clear the cache of a topic map use the following query:
+To clear the cache of a topic map use the following URL:
 
 ~~~~~~~~~~~~~~~~~~~~
 SERVER/tm/clearcache/TMID
 ~~~~~~~~~~~~~~~~~~~~
 
-The parameter:
+The parameters are (both, POST and GET requests are allowed):
 
 [options="header"]
 |=================================
-|apikey|the apikey for the user
+|Name|Type|Description
+|apikey|String|the apikey for the user
 |=================================
-
-TODO: SPARQL
-
-
 
