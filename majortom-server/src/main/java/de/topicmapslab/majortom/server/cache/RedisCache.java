@@ -40,7 +40,7 @@ public class RedisCache implements ICache {
 	public RedisCache() throws CacheException {
 		InputStream stream;
 		try {
-			URL url = getClass().getResource("/jedis.properties");
+			URL url = getClass().getResource("/server.properties");
 			if (url == null) {
 				throw new CacheException("Missing properties for redis cache!");
 			}
