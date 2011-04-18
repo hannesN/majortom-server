@@ -15,7 +15,7 @@
 		<spring.version>3.0.5.RELEASE</spring.version>
 		<tmql.version>3.1.0-SNAPSHOT</tmql.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<server.url>http://nemo:8080</server.url>
+		<server.url>http://localhost:8080</server.url>
 	</properties>
 
 	<build>

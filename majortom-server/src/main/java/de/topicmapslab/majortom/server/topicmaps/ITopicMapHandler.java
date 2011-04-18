@@ -112,5 +112,11 @@ public interface ITopicMapHandler {
 	 *            the name of the local file
 	 */
 	public abstract void loadFromLocalFile(String id, final String filename);
+	
+	/**
+	 * Reindex the full text index of the given topic map
+	 * @param id the id of the topic map
+	 */
+	public void indexTopicMap(String id);
 
 }

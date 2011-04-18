@@ -199,6 +199,14 @@ public class TopicMapsHandler implements ITopicMapHandler {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public void indexTopicMap(String id) {
+		indexTopicMap(getTopicMap(id));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void loadFromFileUpload(String id, final MultipartFile file) {
 
 		logger.info("Start Loading file: " + file.getOriginalFilename());
@@ -361,6 +369,27 @@ public class TopicMapsHandler implements ITopicMapHandler {
 		}).start();
 	}
 
+	private void indexTopicMap(TopicMap topicMap) {
+		try {
+			logger.info("Start indexing");
+			TopicMapIndexer idx = new TopicMapIndexer(
+					new TopicMapIndexDirectory(new ConstructIdentifier(
+							IdentifierType.TOPIC_MAP_LOCATOR, topicMap
+									.getLocator().toExternalForm()),
+							"/tmp/index/", "facets/"));
+			idx.setCreateFacets(true);
+			idx.setCreateOccurrenceFacets(true);
+			idx.setCreateNameFacets(false);
+			idx.setCreateRoleFacets(true);
+			idx.setAllowOverwrite(true);
+			idx.index(topicMap);
+			logger.info("Finished indexing");
+		} catch (Exception e) {
+			logger.error("Could not create fulltext index", e);
+	
+		}
+	}
+
 	private TopicMapSystem getMemoryTopicMapSystem(int initialCapacity) {
 		try {
 			TopicMapSystemFactoryImpl tmsFac = new TopicMapSystemFactoryImpl();
@@ -408,27 +437,6 @@ public class TopicMapsHandler implements ITopicMapHandler {
 		} catch (Exception e) {
 			logger.error("Could not create topic map", e);
 			throw new RuntimeException(e);
-		}
-	}
-
-	private void indexTopicMap(TopicMap topicMap) {
-		try {
-			logger.info("Start indexing");
-			TopicMapIndexer idx = new TopicMapIndexer(
-					new TopicMapIndexDirectory(new ConstructIdentifier(
-							IdentifierType.TOPIC_MAP_LOCATOR, topicMap
-									.getLocator().toExternalForm()),
-							"/tmp/index/", "facets/"));
-			idx.setCreateFacets(true);
-			idx.setCreateOccurrenceFacets(true);
-			idx.setCreateNameFacets(false);
-			idx.setCreateRoleFacets(true);
-			idx.setAllowOverwrite(true);
-			idx.index(topicMap);
-			logger.info("Finished indexing");
-		} catch (Exception e) {
-			logger.error("Could not create fulltext index", e);
-
 		}
 	}
 

@@ -440,13 +440,7 @@ public class MajorToMController extends AbstractMajorToMController {
 		if (!isValidKey(apikey))
 			return invalidApiKeyResult();
 		try {
-			/*
-			 * checks if caching is enabled
-			 */
 			if (CacheHandler.isCachingEnabled()) {
-				/*
-				 * clear cache
-				 */
 				CacheHandler.getCache().clear(id);
 			}
 		} catch (Exception e) {
@@ -455,5 +449,25 @@ public class MajorToMController extends AbstractMajorToMController {
 
 		return new JSONView(getResultJSON(0, "OK"));
 	}
+	
+	/**
+	 * Create new search index for a map
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/createindex/{id}", method = { RequestMethod.GET, RequestMethod.POST })
+	public JSONView createIndex(@PathVariable String id, String query, String apikey, HttpServletResponse resp) throws ServletException {
+		if (!isValidKey(apikey))
+			return invalidApiKeyResult();
+		try {			
+			tmh.indexTopicMap(id);
+		} catch (Exception e) {
+			return new JSONView(getResultJSON(1, "Error clearing cache: " + e.getMessage()));
+		}
+
+		return new JSONView(getResultJSON(0, "OK"));
+	}
+	
+	
 
 }
