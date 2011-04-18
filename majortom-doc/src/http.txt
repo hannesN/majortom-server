@@ -157,3 +157,18 @@ The parameters are (both, POST and GET requests are allowed):
 |apikey|String|the apikey for the user
 |=================================
 
+=== Reindex a Topic Map ===
+
+To reindex a topic map use the following URL:
+
+~~~~~~~~~~~~~~~~~~~~
+SERVER/tm/clearindex/TMID
+~~~~~~~~~~~~~~~~~~~~
+
+The parameters are (both, POST and GET requests are allowed):
+
+[options="header"]
+|=================================
+|Name|Type|Description
+|apikey|String|the apikey for the user
+|=================================
