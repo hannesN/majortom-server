@@ -74,6 +74,7 @@ This URL needs the following parameter (POST and GET are supported, we strongly 
 |Name|Type|Description
 |query|String|tmql query
 |apikey|String|the apikey for the user
+|jtmqr|String|1 or 2; the version of the JTMQR syntax for the query results
 |=================================
 
 The JTMQR result is stored inside the data field of the query result.
