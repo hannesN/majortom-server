@@ -28,6 +28,32 @@ TOMCATROOT/bin/catalina.sh start
 
 Visit http://localhost:8080 and the tomcat start page should be visible.
 
+=== Checking out the Source Code ===
+
+The MaJorToM-Server development team uses mercurial as source control management tool.
+Install mercurial as described on their website http://mercurial.selenic.com/ .
+
+Check out the source code with:
+
+------------------------------------------
+hg clone https://majortom-server.googlecode.com/hg/ majortom-server 
+------------------------------------------
+
+To select a specific version you have to switch to a version branch. The default branch is the current development branch.
+Branches beginning with V are version branches, e.g. V1_0_0 .
+
+To switch a branch use the following command
+
+------------------------------------------
+hg update VERSION 
+------------------------------------------
+
+For a list of all available branches use the command:
+
+------------------------------------------
+hg branches 
+------------------------------------------
+
 === Configuring the MaJorToM-Server ===
 
 No matter which way you chose to deploy the MaJorToM-Server, some configuration is necessary prior to deployment.

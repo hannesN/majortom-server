@@ -159,7 +159,7 @@ The parameters are (both, POST and GET requests are allowed):
 
 === Reindex a Topic Map ===
 
-To reindex a topic map use the following URL:
+To reindex for the fulltext search a topic map use the following URL:
 
 ~~~~~~~~~~~~~~~~~~~~
 SERVER/tm/clearindex/TMID
