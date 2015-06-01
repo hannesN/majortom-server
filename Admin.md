@@ -1,0 +1,55 @@
+## The Administatration Page ##
+
+### Log-in and Create Users ###
+
+The server creates to users at the first start.
+
+The first is the user admin with the password **sEcReT**. YOu should modify the password at once.
+
+To modify the password visit:
+
+```
+SERVER/majortom-server/admin/
+```
+
+and click on **Show Users**.
+
+After that you see the two users.
+
+Edit **admin** and enter a new password. After pressing **submit** the new password is stored.
+
+To create a new user, use **Add User** below the user table and enter the data.
+
+The password is stored as hash, so you can't read the real password.
+An APIKey is used in the tm-controller to permit access to the topic maps.
+
+### Configure Database Connection ###
+
+The server can use the db-backend of MaJorToM, but only one databse at a time and only a POSTRES DB.
+
+Configure the connection in the admin interface and after that create a new topic map with deselected **in memory** checkbox.
+
+### Create a Topic Map ###
+
+To create a Topic Map, press **Create a Topic Map** in the admin interface.
+
+The topic map needs a baselocator, which needs to be an URI and will be used to identify the topic map.
+
+The in memory checkbox indicates whether the topic map is stored in memory or in the configured database (if non is configured an exception is thrown).
+
+The filePath field can be used to load a topic map which is already in a directory on the server (the machine). A directory can be entered to load all
+topic map files in the directory into the new topic map.
+
+To get a better loading performance the user can enter an initial capacity of all the maps used in the InMemoryStore. This applies only for inMemory topic maps.
+
+Last but not least, the file field is used to upload an xtm or ctm file, which will be loaded after the creation of the topic map.
+
+NOTE: Loading of files is done in background. Although the server indicates to be finished with creating the topic map, it may not be loaded already.
+
+### List of Topic Maps ###
+
+In the list of topic maps the following operations are available:
+
+  * **delete** deletes a topic map from the topic map system including all data
+  * **clean** removes the content of the topic map. An empty topic map remains.
+  * **close** closes the topic map. This is only useful when using database topic maps. The topic map won't be available by the server but the data remains in the database.

@@ -1,0 +1,1 @@
+Majortom-Server is a Spring application which provides a TMQL HTTP interface to query topic maps.
